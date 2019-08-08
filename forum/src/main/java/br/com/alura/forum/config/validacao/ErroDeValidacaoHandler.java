@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-	/* 
+	/* classe para simplificar o json devolvido em caso de erro de validação
 	 * interceptador que responde quando acontece uma excepion, recebe a annotaion
 	 * 'ControllerAdvice' ou 'RestControllerAdvice'
 	 */
