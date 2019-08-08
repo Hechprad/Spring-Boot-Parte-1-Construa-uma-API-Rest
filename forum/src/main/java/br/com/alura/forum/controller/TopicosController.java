@@ -1,7 +1,6 @@
 package br.com.alura.forum.controller;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -9,13 +8,12 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,7 +34,7 @@ import br.com.alura.forum.repository.TopicoRepository;
 /*
  *'RestController' indica para o Spring que todos os métodos da classe são
  *'ResponseBody', portanto, não é necessário a anotação do 'ResponseBody'
- *nos métodos. 
+ * nos métodos. 
  */
 
 @RestController
@@ -58,14 +56,21 @@ public class TopicosController {
 	 * 'RequestParam' avisa o Spring que este é um parâmetro de request, de URL
 	 * e torna este parâmetro obrigatório, para modificar isto basta colocar
 	 * '(required = false)'
+	 * 'PageableDefault' esta anotação permite deixar uma paginação padrão caso o
+	 * usuário não passe dados na url (esta anotação é ignorada caso o usuário passe parâmetros)
 	 */
 	@GetMapping
 	public Page<TopicoDto> lista(@RequestParam(required = false) String nomeCurso, 
-			@RequestParam int pagina, @RequestParam int qtd, 
-			@RequestParam String ordenacao) {	//'DTO' usado quando dados saem da API
-		
-		// paginação, 'Direction' ASC crescente ou DESC decrescente, 'ordenacao' = id ou dataCriacao, qualquer param do Topico
-		Pageable paginacao = PageRequest.of(pagina, qtd, Direction.ASC, ordenacao);
+			@PageableDefault(sort = "id", direction = Direction.DESC, page = 0, size = 10) Pageable paginacao) {	//'DTO' usado quando dados saem da API
+		/* 
+		 * Para o Spring conseguir pegar os parâmetros de paginação é necessário
+		 * habilitar um módulo que faz este suporte, isso é feito na classe main
+		 * 'ForumApplication'
+		 * exemplo de url com os parâmetros de paginação:
+		 * um campo: "localhost:8080/topicos?page=0&size=3&sort=id,asc"
+		 * mais de um campo: "localhost:8080/topicos?page=0&size=3&sort=id,asc&sort=dataCriacao,desc"
+		 * pagina, tamanho, ordenação e 'asc' crescente, 'desc' decrescente 
+		 */
 		
 		if(nomeCurso == null) {
 			Page<Topico> topicos = topicoRepository.findAll(paginacao);
