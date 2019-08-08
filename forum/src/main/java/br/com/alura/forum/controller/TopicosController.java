@@ -73,6 +73,7 @@ public class TopicosController {
 	
 	// RequestBody, avisa o Spring que o parâmetro deve ser obtido no corpo da requisição
 	@PostMapping
+	@Transactional	//'Trasational' avisa o Spring que precisa commitar este método quando for executado
 	public ResponseEntity<TopicoDto> cadastrar(@RequestBody @Valid TopicoForm form, UriComponentsBuilder uriBuilder) {	//'form' usado para dados que chegam na API
 		Topico topico = form.converter(cursoRepository);
 		topicoRepository.save(topico);
@@ -93,7 +94,7 @@ public class TopicosController {
 	 * Patch: pequena att, apenas alguns campos.
 	 */
 	@PutMapping("/{id}")
-	@Transactional	//'Trasational'avisa o Spring que precisa commitar este método quando for executado
+	@Transactional	//'Trasational' avisa o Spring que precisa commitar este método quando for executado
 	public ResponseEntity<TopicoDto> atualizar(@PathVariable Long id, 
 			@RequestBody @Valid AtualizacaoTopicoForm form) {
 		Topico topico = form.atualizar(id, topicoRepository);
@@ -103,6 +104,7 @@ public class TopicosController {
 	
 	
 	@DeleteMapping("/{id}")
+	@Transactional	//'Trasational' avisa o Spring que precisa commitar este método quando for executado
 	public ResponseEntity<?> remover(@PathVariable Long id) {
 		topicoRepository.deleteById(id);
 		
