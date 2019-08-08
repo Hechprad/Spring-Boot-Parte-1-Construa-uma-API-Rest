@@ -64,7 +64,7 @@ public class TopicosController {
 			@RequestParam int pagina, @RequestParam int qtd, 
 			@RequestParam String ordenacao) {	//'DTO' usado quando dados saem da API
 		
-		// paginação, 'Direction' ASC ou DESC, 'ordenacao' = id ou dataCriacao, qualquer param do Topico
+		// paginação, 'Direction' ASC crescente ou DESC decrescente, 'ordenacao' = id ou dataCriacao, qualquer param do Topico
 		Pageable paginacao = PageRequest.of(pagina, qtd, Direction.ASC, ordenacao);
 		
 		if(nomeCurso == null) {
