@@ -26,9 +26,23 @@ public class TopicosController {
 	private TopicoRepository topicoRepository;
 
 	@RequestMapping("/topicos")
-	public List<TopicoDto> lista(){
-		List<Topico> topicos = topicoRepository.findAll();
-		return TopicoDto.converter(topicos);
+	public List<TopicoDto> lista(String nomeCurso){
+		if(nomeCurso == null) {
+			List<Topico> topicos = topicoRepository.findAll();
+			return TopicoDto.converter(topicos);
+		} else {
+			/* Para gerar a query do bd automaticamento o
+			 * Spring Data tem um padrão de nomenclatura:
+			 * findBy + nome do atributo + (nome do atributo seguinte, etc) + parâmetro e crie o método
+			 * no repository específico
+			 * em caso de ambiguidade ex: atributo cursoNome na classe Topico
+			 * é possível diferenciar e específicar utilizando '_' 
+			 * ex: findByCurso_Nome()
+			 */
+			List<Topico> topicos = topicoRepository.findByCursoNome(nomeCurso);
+			// no caso findByCurso(atributo da classe Topico) + Nome(atributo da classe Curso)
+			return TopicoDto.converter(topicos);
+		}
 	}
 	
 }
