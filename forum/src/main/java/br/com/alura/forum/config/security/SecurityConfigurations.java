@@ -30,7 +30,6 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 	 */
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	
 	}
 	
 	/*
@@ -41,8 +40,9 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
 			.antMatchers(HttpMethod.GET, "/topicos").permitAll()	//liberando método GET do endereço /topicos
-			.antMatchers(HttpMethod.GET, "/topicos/*").permitAll();	//liberanto todos métodos GET da URL após /topicos ex:/topicos/{id} 
-		
+			.antMatchers(HttpMethod.GET, "/topicos/*").permitAll()	//liberanto todos métodos GET da URL após /topicos ex:/topicos/{id} 
+			.anyRequest().authenticated()	//Qualquer outra requisição precisa estar autenticado (403) Forbidden
+			.and().formLogin();	// Spring gera um formulário de autenticação
 	}
 
 	/*
