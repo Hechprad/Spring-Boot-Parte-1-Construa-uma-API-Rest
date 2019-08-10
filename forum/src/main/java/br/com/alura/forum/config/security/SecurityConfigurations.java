@@ -1,5 +1,6 @@
 package br.com.alura.forum.config.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -7,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /*
  * 'EnableWebSecurity' habilita o Spring Security
@@ -24,12 +26,17 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 
+	@Autowired
+	private AutenticacaoService autenticacaoService;
+	
 	/*
 	 * Configurações da parte de autenticação
 	 * controle de acesso, login, etc
 	 */
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.userDetailsService(autenticacaoService)	//passamos a classe que possui a lógica de autenticação
+			.passwordEncoder(new BCryptPasswordEncoder());	//Qual encoder, algoritimo de hash é utilizado para a senha
 	}
 	
 	/*
