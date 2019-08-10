@@ -7,6 +7,8 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -53,13 +55,23 @@ public class TopicosController {
 	 * mas como todos os métodos são da "/topicos", jogamos a annotation para para a classe
 	 * e substituímos pela annotation com o método na frente: 
 	 * GetMapping / PostMapping 
+	 * 
 	 * 'RequestParam' avisa o Spring que este é um parâmetro de request, de URL
 	 * e torna este parâmetro obrigatório, para modificar isto basta colocar
 	 * '(required = false)'
+	 * 
+	 * 'Cacheable' anotação que avisa o Spring para guardar o retorno do método
+	 * em cache o 'value' é o identificador único deste cache
+	 * -- para verificar se o cache está funcionando, devemos habilitar 
+	 * nas propriedades do hibernate para mostrar a busca no bd no console:
+	 * "spring.jpa.properties.hibernate.show_sql=true" mostra no console
+	 * "spring.jpa.properties.hibernate.format_sql=true" formata a saída
+	 * 
 	 * 'PageableDefault' esta anotação permite deixar uma paginação padrão caso o
 	 * usuário não passe dados na url (esta anotação é ignorada caso o usuário passe parâmetros)
 	 */
 	@GetMapping
+	@Cacheable(value = "ListaDeTopicos")
 	public Page<TopicoDto> lista(@RequestParam(required = false) String nomeCurso, 
 			@PageableDefault(sort = "id", direction = Direction.DESC, page = 0, size = 10) Pageable paginacao) {	//'DTO' usado quando dados saem da API
 		/* 
@@ -92,9 +104,17 @@ public class TopicosController {
 		}
 	}
 	
-	// RequestBody, avisa o Spring que o parâmetro deve ser obtido no corpo da requisição
+	/* 
+	 * 'RequestBody', avisa o Spring que o parâmetro deve ser obtido no corpo da requisição
+	 * 'Valid' avisa que o form precisa ser validade
+	 * 'Trasational' avisa o Spring que precisa commitar este método quando for executado
+	 * 'CacheEvict' avisa o Spring que o cache em memória precisa ser expulso, limpo.
+	 * Cada vez que cadastrarmos um novo item, o cache da 'ListaDeTopicos' precisa ser 
+	 * atualizado com os novos dados, allEntries limpa todos os registros
+	 */
 	@PostMapping
-	@Transactional	//'Trasational' avisa o Spring que precisa commitar este método quando for executado
+	@Transactional
+	@CacheEvict(value = "ListaDeTopicos", allEntries = true)
 	public ResponseEntity<TopicoDto> cadastrar(@RequestBody @Valid TopicoForm form, UriComponentsBuilder uriBuilder) {	//'form' usado para dados que chegam na API
 		Topico topico = form.converter(cursoRepository);
 		topicoRepository.save(topico);
@@ -120,6 +140,7 @@ public class TopicosController {
 	 */
 	@PutMapping("/{id}")
 	@Transactional	//'Trasational' avisa o Spring que precisa commitar este método quando for executado
+	@CacheEvict(value = "ListaDeTopicos", allEntries = true)
 	public ResponseEntity<TopicoDto> atualizar(@PathVariable Long id, 
 			@RequestBody @Valid AtualizacaoTopicoForm form) {
 		Optional<Topico> optional = topicoRepository.findById(id);
@@ -135,6 +156,7 @@ public class TopicosController {
 	
 	@DeleteMapping("/{id}")
 	@Transactional	//'Trasational' avisa o Spring que precisa commitar este método quando for executado
+	@CacheEvict(value = "ListaDeTopicos", allEntries = true)
 	public ResponseEntity<?> remover(@PathVariable Long id) {
 		Optional<Topico> topico = topicoRepository.findById(id);
 		if(topico.isPresent()) {
