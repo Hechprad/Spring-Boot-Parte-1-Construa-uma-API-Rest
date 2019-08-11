@@ -34,6 +34,13 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 	private AutenticacaoService autenticacaoService;
 	
 	/*
+	 *  injetando o tokenService nesta classe para usa-lo na classe
+	 *  'AutenticacaoViaTokenFilter'
+	 */
+	@Autowired
+	private TokenService tokenService;
+	
+	/*
 	 * Método necessário para injetar o AuthenticationManager na classe 
 	 * 'AutenticacaoController'
 	 * 'Bean' com esta annotation o Spring consegue identificar o retorno,
@@ -69,7 +76,7 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 			// .and().formLogin() // Spring gera um formulário de autenticação e cria uma sessão
 			.and().csrf().disable()	//csrf - Crosssite Request Forgery desabilitado, autenticação via TOKEN deixa a API livre de ataques deste tipo
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)	//politica de criação de sessão
-			.and().addFilterBefore(new AutenticacaoViaTokenFilter(), UsernamePasswordAuthenticationFilter.class);	//colocando nosso filtro de autenticação para rodar primeiro na aplicação
+			.and().addFilterBefore(new AutenticacaoViaTokenFilter(tokenService), UsernamePasswordAuthenticationFilter.class);	//colocando nosso filtro de autenticação para rodar primeiro na aplicação
 	}
 
 	/*

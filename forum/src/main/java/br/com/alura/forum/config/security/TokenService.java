@@ -49,4 +49,17 @@ public class TokenService {
 				.compact();	// campacta e transforma em String
 	}
 
+	public boolean isTokenValido(String token) {
+		/*
+		 * 'parser()' faz o parse do token, descriptografa e diz se está ok
+		 * 'setSigningKey(secret)' passamos a chave para descriptografar
+		 */
+		try {
+			Jwts.parser().setSigningKey(this.secret).parseClaimsJws(token);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 }
