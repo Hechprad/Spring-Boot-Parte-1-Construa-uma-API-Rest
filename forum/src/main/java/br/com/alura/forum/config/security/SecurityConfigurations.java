@@ -77,6 +77,7 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 			.antMatchers(HttpMethod.GET, "/topicos").permitAll()	//liberando método GET do endereço /topicos
 			.antMatchers(HttpMethod.GET, "/topicos/*").permitAll()	//liberando todos métodos GET da URL após /topicos ex:/topicos/{id} 
 			.antMatchers(HttpMethod.POST, "/auth").permitAll()	//liberando método POST, URL de login
+			.antMatchers(HttpMethod.GET, "/actuator/**").permitAll()	//liberando endereço do ACTUATOR
 			.anyRequest().authenticated()	//Qualquer outra requisição precisa estar autenticado (403) Forbidden
 			// .and().formLogin() // Spring gera um formulário de autenticação e cria uma sessão
 			.and().csrf().disable()	//csrf - Crosssite Request Forgery desabilitado, autenticação via TOKEN deixa a API livre de ataques deste tipo
@@ -87,9 +88,12 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 	/*
 	 * Configurações de Recursos Estáticos
 	 * requisições para arquivos, javascript, css, imagens, etc
+	 * 
+	 * Neste método liberamos os recursos para o uso do swagger
+	 * "http://localhost:8080/swagger-ui.html"
 	 */
 	@Override
 		public void configure(WebSecurity web) throws Exception {
-
+		web.ignoring().antMatchers("/**.html", "/v2/api-docs", "/webjars/**", "/configuration/**", "/swagger-resources/**");
 	}
 }

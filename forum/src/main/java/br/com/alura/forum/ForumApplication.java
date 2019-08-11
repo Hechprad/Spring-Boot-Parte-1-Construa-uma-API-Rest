@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
 /*
  * rodar classe para subir o tomcat
  * 
@@ -13,11 +15,14 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
  * Spring Data
  * 
  * 'EnableCaching' Habilita o uso de cache na nossa aplicação
+ * 
+ * 'EnaleSwagger2' Habilita o uso do Swagger
  */
 
 @SpringBootApplication
 @EnableSpringDataWebSupport
 @EnableCaching
+@EnableSwagger2
 public class ForumApplication {
 
 	public static void main(String[] args) {
