@@ -14,6 +14,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import br.com.alura.forum.repository.UsuarioRepository;
+
 /*
  * 'EnableWebSecurity' habilita o Spring Security
  * 'Configuration' como esta classe possue diversas configurações
@@ -34,11 +36,14 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 	private AutenticacaoService autenticacaoService;
 	
 	/*
-	 *  injetando o tokenService nesta classe para usa-lo na classe
+	 *  injetando o tokenService e o repository nesta classe para usa-lo na classe
 	 *  'AutenticacaoViaTokenFilter'
 	 */
 	@Autowired
 	private TokenService tokenService;
+	
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 	
 	/*
 	 * Método necessário para injetar o AuthenticationManager na classe 
@@ -76,7 +81,7 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 			// .and().formLogin() // Spring gera um formulário de autenticação e cria uma sessão
 			.and().csrf().disable()	//csrf - Crosssite Request Forgery desabilitado, autenticação via TOKEN deixa a API livre de ataques deste tipo
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)	//politica de criação de sessão
-			.and().addFilterBefore(new AutenticacaoViaTokenFilter(tokenService), UsernamePasswordAuthenticationFilter.class);	//colocando nosso filtro de autenticação para rodar primeiro na aplicação
+			.and().addFilterBefore(new AutenticacaoViaTokenFilter(tokenService, usuarioRepository), UsernamePasswordAuthenticationFilter.class);	//colocando nosso filtro de autenticação para rodar primeiro na aplicação
 	}
 
 	/*

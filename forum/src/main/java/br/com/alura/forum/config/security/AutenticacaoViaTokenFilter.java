@@ -7,7 +7,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import br.com.alura.forum.model.Usuario;
+import br.com.alura.forum.repository.UsuarioRepository;
 
 /*
  * 'OncePerRequestFilter' filtro do Spring chamado uma vez a cada requisição
@@ -21,17 +26,20 @@ public class AutenticacaoViaTokenFilter extends OncePerRequestFilter {
 
 	/*
 	 * Em classes do tipo filtro, não conseguimos fazer injeção de dependências
-	 * com a annotation 'Autowired', então precisamos receber este parâmetro 
+	 * com a annotation 'Autowired', então precisamos receber estes parâmetros 
 	 * via construtor
 	 */
 	private TokenService tokenService;
+	
+	private UsuarioRepository repository;
 	
 	/*
 	 *  injetando o 'tokenService' manualmente, via construtor e injetando
 	 *  o 'tokenService' com 'Autowired'na classe 'SecurityConfiguration' 
 	 */
-	public AutenticacaoViaTokenFilter(TokenService tokenService) {
+	public AutenticacaoViaTokenFilter(TokenService tokenService, UsuarioRepository repository) {
 		this.tokenService = tokenService;
+		this.repository = repository;
 	}
 	
 	@Override
@@ -40,9 +48,27 @@ public class AutenticacaoViaTokenFilter extends OncePerRequestFilter {
 		
 		String token = recuperarToken(request);
 		boolean valido = tokenService.isTokenValido(token);	//Validando o token na classe 'TokenService'
-			
-		filterChain.doFilter(request, response);
 		
+		if(valido) {
+			autenticarCliente(token);
+		}
+		// se não autenticar o Spring segue o fluxo da requisição e barra o usuário
+		filterChain.doFilter(request, response);
+	}
+
+	private void autenticarCliente(String token) {
+		/*
+		 * Para avisar que o usuário está autenticado, utilizamos o método
+		 * 'SecurityContextHolder' e passamos o parâmetro authentication
+		 * que contém as informações do usuário
+		 */
+		Long idUsuario = tokenService.getIdUsuario(token);
+		Usuario usuario = repository.findById(idUsuario).get();
+		
+		UsernamePasswordAuthenticationToken authentication = 
+				new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+		
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
 
 	private String recuperarToken(HttpServletRequest request) {
