@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /*
  * 'EnableWebSecurity' habilita o Spring Security
@@ -67,7 +68,8 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 			.anyRequest().authenticated()	//Qualquer outra requisição precisa estar autenticado (403) Forbidden
 			// .and().formLogin() // Spring gera um formulário de autenticação e cria uma sessão
 			.and().csrf().disable()	//csrf - Crosssite Request Forgery desabilitado, autenticação via TOKEN deixa a API livre de ataques deste tipo
-			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);	//politica de criação de sessão
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)	//politica de criação de sessão
+			.and().addFilterBefore(new AutenticacaoViaTokenFilter(), UsernamePasswordAuthenticationFilter.class);	//colocando nosso filtro de autenticação para rodar primeiro na aplicação
 	}
 
 	/*
